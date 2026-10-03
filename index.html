@@ -1,906 +1,822 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MessApp - Mesajlaşmanın Özgün Hali</title>
-  <link rel="manifest" href="manifest.json">
-<script>
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js');
-  }
-</script>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    * {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MessApp v2.0 - Next-Gen Edition</title>
+    <link rel="manifest" href="manifest.json">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0b0f19;
+            --card-bg: #151c2c;
+            --accent-neon-blue: #00f2fe;
+            --accent-neon-purple: #9b51e0;
+            --accent-pink: #ec4899;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --gradient-logo: linear-gradient(135deg, #a855f7 0%, #00d2ff 100%);
+        }
 
-    /* Custom Scrollbar for sleek dark look */
-    ::-webkit-scrollbar {
-      width: 4px;
-      height: 4px;
-    }
-    ::-webkit-scrollbar-track {
-      background: rgba(15, 23, 42, 0.6);
-    }
-    ::-webkit-scrollbar-thumb {
-      background: #334155;
-      border-radius: 4px;
-    }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
 
-    .brand-gradient {
-      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
-    }
+        html, body {
+            width: 100%;
+            height: 100%;
+            background-color: #030712;
+            color: var(--text-main);
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
 
-    .brand-gradient-text {
-      background: linear-gradient(135deg, #818cf8 0%, #c084fc 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
+        /* TELEFONDA: DÜZ TAM EKRAN | BİLGİSAYARDA: MASAÜSTÜ MOKUPU */
+        .mobile-container {
+            width: 100%;
+            height: 100vh;
+            height: 100dvh;
+            background-color: var(--bg-dark);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+            border-radius: 0;
+            border: none;
+            box-shadow: none;
+        }
 
-    .glass-card {
-      background: rgba(30, 41, 59, 0.7);
-      backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-    }
+        /* Bilgisayar ve Geniş Ekranlar İçin Masaüstü Görünümü */
+        @media (min-width: 500px) {
+            body {
+                background-color: #030712;
+            }
+            .mobile-container {
+                max-width: 414px;
+                height: 844px;
+                max-height: 92vh;
+                border-radius: 36px;
+                border: 6px solid #1e293b;
+                box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 0 30px rgba(168, 85, 247, 0.15);
+            }
+        }
 
-    .message-outgoing {
-      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-    }
+        /* HEADER */
+        header {
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: var(--bg-dark);
+            z-index: 10;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
 
-    .screen-view {
-      display: none;
-      opacity: 0;
-      transition: opacity 0.25s ease-in-out;
-    }
+        .app-title-box {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
 
-    .screen-view.active {
-      display: flex;
-      opacity: 1;
-    }
+        .neon-logo {
+            width: 36px;
+            height: 36px;
+            background: var(--gradient-logo);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 15px rgba(168, 85, 247, 0.5);
+        }
 
-    @keyframes pulseGlow {
-      0%, 100% { box-shadow: 0 0 15px rgba(168, 85, 247, 0.3); }
-      50% { box-shadow: 0 0 25px rgba(99, 102, 241, 0.6); }
-    }
+        .neon-logo i {
+            color: #ffffff;
+            font-size: 18px;
+            filter: drop-shadow(0 0 4px rgba(255,255,255,0.8));
+        }
 
-    .glow-effect {
-      animation: pulseGlow 4s infinite ease-in-out;
-    }
-  </style>
+        .app-title {
+            font-size: 20px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #c084fc, #38bdf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 16px;
+            color: var(--text-muted);
+            font-size: 18px;
+        }
+
+        .header-actions i {
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .header-actions i:hover { color: var(--text-main); }
+
+        /* VIBE FILTER BAR */
+        .vibe-bar {
+            display: flex;
+            gap: 10px;
+            padding: 12px 20px;
+            overflow-x: auto;
+            scrollbar-width: none;
+            background-color: rgba(21, 28, 44, 0.5);
+        }
+
+        .vibe-bar::-webkit-scrollbar { display: none; }
+
+        .vibe-chip {
+            padding: 6px 14px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            white-space: nowrap;
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .vibe-chip.active {
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.2), rgba(0, 242, 254, 0.2));
+            color: var(--text-main);
+            border-color: rgba(168, 85, 247, 0.5);
+        }
+
+        /* VIEW PAGES */
+        .page-content {
+            flex: 1;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .view-page {
+            display: none;
+            padding: 15px 20px;
+            animation: fadeIn 0.25s ease-in-out;
+        }
+
+        .view-page.active { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* STORIES */
+        .stories-scroll {
+            display: flex;
+            gap: 14px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+            scrollbar-width: none;
+        }
+
+        .stories-scroll::-webkit-scrollbar { display: none; }
+
+        .story-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            min-width: 64px;
+        }
+
+        .avatar-wrapper {
+            position: relative;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            padding: 3px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .vibe-ring-music { background: linear-gradient(45deg, #ec4899, #8b5cf6); }
+        .vibe-ring-chill { background: linear-gradient(45deg, #10b981, #06b6d4); }
+        .vibe-ring-focus { background: linear-gradient(45deg, #f59e0b, #ef4444); }
+
+        .avatar-img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--bg-dark);
+        }
+
+        .add-story-btn {
+            background-color: var(--card-bg);
+            border: 2px dashed #334155;
+            color: #c084fc;
+            font-size: 18px;
+        }
+
+        .vibe-badge {
+            position: absolute;
+            bottom: -2px;
+            right: -2px;
+            background-color: var(--card-bg);
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            border: 1px solid var(--bg-dark);
+        }
+
+        .story-name { font-size: 11px; color: var(--text-main); font-weight: 500; }
+
+        /* CHAT CARDS & MESSAI PINNED */
+        .chat-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .chat-card {
+            background-color: var(--card-bg);
+            padding: 12px 14px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            transition: all 0.2s;
+        }
+
+        .chat-card:active { transform: scale(0.98); }
+
+        .messai-card {
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.15), rgba(0, 242, 254, 0.15));
+            border: 1px solid rgba(168, 85, 247, 0.4);
+            box-shadow: 0 4px 15px rgba(168, 85, 247, 0.1);
+        }
+
+        .chat-info { flex: 1; }
+        .chat-header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+        .chat-name { font-size: 15px; font-weight: 600; }
+        .chat-time { font-size: 11px; color: var(--text-muted); }
+        .chat-msg { font-size: 13px; color: var(--text-muted); max-width: 210px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        /* EQUALIZER ANIMATION */
+        .eq-box { display: flex; gap: 2px; align-items: flex-end; height: 12px; }
+        .eq-bar { width: 2px; background: var(--accent-pink); border-radius: 2px; animation: eqAnim 0.6s infinite alternate; }
+        .eq-bar:nth-child(1) { height: 40%; animation-delay: 0.1s; }
+        .eq-bar:nth-child(2) { height: 100%; animation-delay: 0.3s; }
+        .eq-bar:nth-child(3) { height: 60%; animation-delay: 0.2s; }
+        @keyframes eqAnim { 0% { height: 20%; } 100% { height: 100%; } }
+
+        /* CHAT SCREENS */
+        .chat-detail-screen {
+            position: absolute;
+            inset: 0;
+            background-color: var(--bg-dark);
+            z-index: 50;
+            display: none;
+            flex-direction: column;
+        }
+
+        .chat-detail-screen.active { display: flex; animation: slideInRight 0.25s ease; }
+
+        @keyframes slideInRight {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
+        }
+
+        .chat-detail-header {
+            padding: 15px 20px;
+            background: var(--card-bg);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .chat-detail-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .msg-bubble {
+            max-width: 80%;
+            padding: 10px 14px;
+            border-radius: 16px;
+            font-size: 13.5px;
+            line-height: 1.4;
+        }
+
+        .msg-incoming { background-color: var(--card-bg); align-self: flex-start; border-bottom-left-radius: 4px; }
+        .msg-outgoing { background: linear-gradient(135deg, #8b5cf6, #3b82f6); align-self: flex-end; border-bottom-right-radius: 4px; color: white; }
+
+        .chat-input-area {
+            padding: 12px 16px;
+            background-color: var(--card-bg);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .chat-input {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 10px 16px;
+            border-radius: 20px;
+            color: white;
+            outline: none;
+            font-size: 13px;
+        }
+
+        /* MODAL */
+        .modal {
+            position: absolute;
+            inset: 0;
+            background: rgba(11, 15, 25, 0.95);
+            z-index: 100;
+            display: none;
+            flex-direction: column;
+            padding: 24px;
+            backdrop-filter: blur(10px);
+        }
+
+        .modal.active { display: flex; animation: slideUp 0.25s ease; }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        .vibe-selector {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .vibe-option {
+            background: var(--card-bg);
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid transparent;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .vibe-option.selected {
+            border-color: var(--accent-neon-purple);
+            background: rgba(168, 85, 247, 0.15);
+        }
+
+        .music-input-card {
+            background: rgba(236, 72, 153, 0.1);
+            border: 1px dashed var(--accent-pink);
+            padding: 12px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            display: none;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .action-btn {
+            background: linear-gradient(135deg, #a855f7, #00d2ff);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 14px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        /* NAVBAR */
+        nav {
+            background-color: var(--card-bg);
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-around;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            z-index: 10;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            color: var(--text-muted);
+            font-size: 11px;
+            cursor: pointer;
+        }
+
+        .nav-item i { font-size: 18px; }
+        .nav-item.active { color: var(--accent-neon-blue); font-weight: 600; }
+        
+        .search-bar-box { display: none; padding: 10px 20px; background: var(--card-bg); }
+        .search-bar-box.active { display: block; }
+        .search-input { width: 100%; background: rgba(255, 255, 255, 0.05); border: 1px solid #334155; padding: 8px 14px; border-radius: 12px; color: white; outline: none; }
+    </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen flex items-center justify-center p-2 sm:p-6 select-none">
+<body>
 
-  <!-- Mobile Device Simulation Frame -->
-  <div class="phone-frame w-full max-w-[410px] h-[830px] bg-slate-900 rounded-[44px] border-[8px] border-slate-800 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.9)] flex flex-col overflow-hidden relative glow-effect">
-    
-    <!-- Phone Top Status Bar Simulation -->
-    <div class="w-full bg-slate-950/80 backdrop-blur-md text-slate-400 px-6 pt-3 pb-1 flex justify-between items-center text-xs z-50 font-medium">
-      <span id="liveClock">17:45</span>
-      <!-- Dynamic Notch / Pill -->
-      <div class="w-24 h-4 bg-slate-950 rounded-full border border-slate-800 flex items-center justify-center gap-1.5">
-        <div class="w-2 h-2 rounded-full bg-indigo-500/80 animate-ping"></div>
-        <div class="w-1.5 h-1.5 rounded-full bg-slate-700"></div>
-      </div>
-      <div class="flex items-center gap-1.5 text-slate-300">
-        <span>5G</span>
-        <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L4.35 19.8 12 21l7.65-1.2 1.38-2.19C22.26 16.07 23 14.12 23 12c0-4.97-4.03-9-9-9zm0 15c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6z"/></svg>
-        <span class="text-[10px] font-bold">98%</span>
-      </div>
-    </div>
-
-    <!-- MAIN APP SCREEN CONTAINER -->
-    <div id="appContainer" class="flex-1 flex flex-col overflow-hidden relative bg-slate-950">
-
-      <!-- ================= 1. SOHBETLER (CHATS) SCREEN ================= -->
-      <div id="screenChats" class="screen-view active flex-col h-full w-full">
-        
-        <!-- Header -->
-        <div class="px-5 pt-3 pb-3 brand-gradient text-white shadow-lg flex items-center justify-between">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 bg-white/20 backdrop-blur-md border border-white/40 rounded-2xl flex items-center justify-center text-xl shadow-inner">
-              💬
+    <div class="mobile-container">
+        <!-- HEADER -->
+        <header>
+            <div class="app-title-box">
+                <div class="neon-logo"><i class="fa-solid fa-comment-dots"></i></div>
+                <div class="app-title">MessApp</div>
             </div>
-            <div>
-              <h1 class="font-bold text-lg leading-tight tracking-wide">MessApp</h1>
-              <p class="text-[10px] text-purple-100 font-medium tracking-wide">Mesajlaşmanın Özgün Hali.</p>
+            <div class="header-actions">
+                <i class="fa-solid fa-magnifying-glass" onclick="toggleSearch()"></i>
+                <i class="fa-solid fa-sliders" onclick="switchPage('settingsPage', this)"></i>
             </div>
-          </div>
-          <div class="flex items-center gap-2">
-            <button onclick="openNewChatModal()" class="w-9 h-9 rounded-full bg-white/15 hover:bg-white/25 active:scale-95 transition flex items-center justify-center text-lg">
-              ✏️
-            </button>
-            <button onclick="switchTab('screenSettings')" class="w-9 h-9 rounded-full bg-white/15 hover:bg-white/25 active:scale-95 transition flex items-center justify-center text-lg">
-              ⚙️
-            </button>
-          </div>
+        </header>
+
+        <!-- ARAMA -->
+        <div class="search-bar-box" id="searchBox">
+            <input type="text" class="search-input" id="searchInput" placeholder="Sohbet veya mod ara..." onkeyup="filterChats()">
         </div>
 
-        <!-- Vibe Stories Bar -->
-        <div class="bg-slate-900/90 border-b border-slate-800/80 py-2.5 px-4 overflow-x-auto flex gap-3.5 no-scrollbar">
-          <!-- User's Vibe -->
-          <div onclick="openVibeSelectorModal()" class="flex flex-col items-center gap-1 min-w-[58px] cursor-pointer group">
-            <div class="relative w-12 h-12 rounded-full p-[2px] brand-gradient group-active:scale-95 transition">
-              <div class="w-full h-full bg-slate-950 rounded-full flex items-center justify-center text-xl border border-slate-800">
-                😎
-              </div>
-              <div class="absolute -bottom-1 -right-1 w-5 h-5 bg-indigo-600 rounded-full border-2 border-slate-950 flex items-center justify-center text-[10px] font-bold">
-                +
-              </div>
-            </div>
-            <span class="text-[10px] font-medium text-slate-300 truncate w-14 text-center">Modun</span>
-          </div>
-
-          <!-- Contact Stories -->
-          <div onclick="showToast('Mete\'nin ⚡ Oyun Modu story\'si görüntülendi!')" class="flex flex-col items-center gap-1 min-w-[58px] cursor-pointer group">
-            <div class="w-12 h-12 rounded-full p-[2px] bg-gradient-to-tr from-amber-500 to-purple-500 group-active:scale-95 transition">
-              <div class="w-full h-full bg-slate-900 rounded-full flex items-center justify-center text-xl">
-                🎮
-              </div>
-            </div>
-            <span class="text-[10px] text-slate-400 truncate w-14 text-center">Mete</span>
-          </div>
-
-          <div onclick="showToast('Selin 🎯 Ders Odak modunda!')" class="flex flex-col items-center gap-1 min-w-[58px] cursor-pointer group">
-            <div class="w-12 h-12 rounded-full p-[2px] bg-gradient-to-tr from-emerald-400 to-cyan-500 group-active:scale-95 transition">
-              <div class="w-full h-full bg-slate-900 rounded-full flex items-center justify-center text-xl">
-                📚
-              </div>
-            </div>
-            <span class="text-[10px] text-slate-400 truncate w-14 text-center">Selin</span>
-          </div>
-
-          <div onclick="showToast('Arda 🎵 Müzik dinliyor!')" class="flex flex-col items-center gap-1 min-w-[58px] cursor-pointer group">
-            <div class="w-12 h-12 rounded-full p-[2px] bg-gradient-to-tr from-pink-500 to-rose-500 group-active:scale-95 transition">
-              <div class="w-full h-full bg-slate-900 rounded-full flex items-center justify-center text-xl">
-                🎧
-              </div>
-            </div>
-            <span class="text-[10px] text-slate-400 truncate w-14 text-center">Arda</span>
-          </div>
-
-          <div onclick="showToast('Zeynep ☕ Kahve/Sohbet modunda!')" class="flex flex-col items-center gap-1 min-w-[58px] cursor-pointer group">
-            <div class="w-12 h-12 rounded-full p-[2px] bg-gradient-to-tr from-purple-400 to-indigo-500 group-active:scale-95 transition">
-              <div class="w-full h-full bg-slate-900 rounded-full flex items-center justify-center text-xl">
-                ✨
-              </div>
-            </div>
-            <span class="text-[10px] text-slate-400 truncate w-14 text-center">Zeynep</span>
-          </div>
+        <!-- VIBE FILTER BAR -->
+        <div class="vibe-bar">
+            <div class="vibe-chip active" onclick="filterVibe('all', this)">Tüm Modlar</div>
+            <div class="vibe-chip" onclick="filterVibe('music', this)">🎧 Müzik</div>
+            <div class="vibe-chip" onclick="filterVibe('chill', this)">☕ Chill</div>
+            <div class="vibe-chip" onclick="filterVibe('focus', this)">🚀 Odak</div>
         </div>
 
-        <!-- Search Bar -->
-        <div class="p-3 bg-slate-950 border-b border-slate-900">
-          <div class="relative flex items-center">
-            <span class="absolute left-3.5 text-slate-500 text-sm">🔍</span>
-            <input type="text" id="chatSearchInput" oninput="filterChatList()" placeholder="Sohbetlerde veya kişilerde ara..." 
-                   class="w-full pl-9 pr-8 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition">
-            <button onclick="clearSearch()" id="clearSearchBtn" class="hidden absolute right-3 text-slate-500 hover:text-slate-300 text-xs">✕</button>
-          </div>
-        </div>
-
-        <!-- Filter Chips -->
-        <div class="px-3 py-2 bg-slate-950 flex gap-2 overflow-x-auto no-scrollbar border-b border-slate-900 text-xs">
-          <button onclick="setFilterChip(this, 'all')" class="chip-btn px-3 py-1 bg-indigo-600 text-white rounded-lg font-medium shadow-sm transition">Tümü</button>
-          <button onclick="setFilterChip(this, 'unread')" class="chip-btn px-3 py-1 bg-slate-900 text-slate-400 hover:bg-slate-800 rounded-lg transition border border-slate-800">Okunmamış</button>
-          <button onclick="setFilterChip(this, 'groups')" class="chip-btn px-3 py-1 bg-slate-900 text-slate-400 hover:bg-slate-800 rounded-lg transition border border-slate-800">Gruplar</button>
-          <button onclick="setFilterChip(this, 'favs')" class="chip-btn px-3 py-1 bg-slate-900 text-slate-400 hover:bg-slate-800 rounded-lg transition border border-slate-800">Favoriler</button>
-        </div>
-
-        <!-- Chats List Container -->
-        <div id="chatsList" class="flex-1 overflow-y-auto p-2 space-y-1 divide-y divide-slate-900/50">
-          
-          <!-- Chat Item 1: Mete -->
-          <div onclick="openActiveChat('Mete', '🎮', 'Online • ⚡ Oyun Modu', 'mete')" 
-               class="chat-item flex items-center gap-3 p-2.5 rounded-2xl hover:bg-slate-900/90 active:bg-slate-800/80 cursor-pointer transition"
-               data-name="mete" data-unread="true" data-type="direct">
-            <div class="relative shrink-0">
-              <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-900 to-slate-800 border border-slate-700/80 flex items-center justify-center text-2xl shadow">
-                🎮
-              </div>
-              <div class="w-3.5 h-3.5 bg-emerald-500 border-2 border-slate-950 rounded-full absolute -bottom-0.5 -right-0.5"></div>
-            </div>
-            <div class="flex-1 min-w-0">
-              <div class="flex justify-between items-center mb-1">
-                <h3 class="font-semibold text-sm text-slate-100 truncate flex items-center gap-1.5">
-                  Mete
-                  <span class="text-[10px] px-1.5 py-0.5 bg-purple-950/80 text-purple-300 border border-purple-800/50 rounded-md font-normal">⚡ Oyun</span>
-                </h3>
-                <span class="text-[10px] text-indigo-400 font-medium">17:42</span>
-              </div>
-              <div class="flex justify-between items-center">
-                <p class="text-xs text-slate-300 truncate pr-2">Akşam maça geliyor musun kanka? Valorant tayfa toplanıyor!</p>
-                <span class="w-5 h-5 brand-gradient text-white text-[10px] font-bold rounded-full flex items-center justify-center shrink-0 shadow">2</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Chat Item 2: Selin -->
-          <div onclick="openActiveChat('Selin', '📚', 'Online • 🎯 Ders Odak', 'selin')" 
-               class="chat-item flex items-center gap-3 p-2.5 rounded-2xl hover:bg-slate-900/90 active:bg-slate-800/80 cursor-pointer transition"
-               data-name="selin" data-unread="false" data-type="direct">
-            <div class="relative shrink-0">
-              <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-cyan-950 to-slate-800 border border-slate-700/80 flex items-center justify-center text-2xl shadow">
-                📚
-              </div>
-              <div class="w-3.5 h-3.5 bg-emerald-500 border-2 border-slate-950 rounded-full absolute -bottom-0.5 -right-0.5"></div>
-            </div>
-            <div class="flex-1 min-w-0">
-              <div class="flex justify-between items-center mb-1">
-                <h3 class="font-semibold text-sm text-slate-100 truncate flex items-center gap-1.5">
-                  Selin
-                  <span class="text-[10px] px-1.5 py-0.5 bg-cyan-950/80 text-cyan-300 border border-cyan-800/50 rounded-md font-normal">🎯 Odak</span>
-                </h3>
-                <span class="text-[10px] text-slate-500">16:15</span>
-              </div>
-              <div class="flex justify-between items-center">
-                <p class="text-xs text-slate-400 truncate pr-2">Matematik notlarını gruba yükledim, göz atarsın.</p>
-                <span class="text-xs text-indigo-400">✓✓</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Chat Item 3: MessApp Dev Team -->
-          <div onclick="openActiveChat('MessApp Yazılım Grubu', '🚀', '5 Üye • Aktif', 'group')" 
-               class="chat-item flex items-center gap-3 p-2.5 rounded-2xl hover:bg-slate-900/90 active:bg-slate-800/80 cursor-pointer transition"
-               data-name="messapp yazilim grubu" data-unread="true" data-type="groups">
-            <div class="relative shrink-0">
-              <div class="w-12 h-12 rounded-2xl brand-gradient border border-white/20 flex items-center justify-center text-2xl shadow">
-                🚀
-              </div>
-            </div>
-            <div class="flex-1 min-w-0">
-              <div class="flex justify-between items-center mb-1">
-                <h3 class="font-semibold text-sm text-slate-100 truncate">MessApp Yazılım Grubu</h3>
-                <span class="text-[10px] text-purple-400 font-medium">14:00</span>
-              </div>
-              <div class="flex justify-between items-center">
-                <p class="text-xs text-slate-300 truncate pr-2"><span class="text-purple-400 font-medium">Ahmet:</span> Yeni mor-mavi arayüz harika görünüyor! 🔥</p>
-                <span class="w-5 h-5 brand-gradient text-white text-[10px] font-bold rounded-full flex items-center justify-center shrink-0 shadow">5</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Chat Item 4: Arda -->
-          <div onclick="openActiveChat('Arda', '🎧', 'Son Görülme: 12:30', 'arda')" 
-               class="chat-item flex items-center gap-3 p-2.5 rounded-2xl hover:bg-slate-900/90 active:bg-slate-800/80 cursor-pointer transition"
-               data-name="arda" data-unread="false" data-type="direct">
-            <div class="relative shrink-0">
-              <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-pink-950 to-slate-800 border border-slate-700/80 flex items-center justify-center text-2xl shadow">
-                🎧
-              </div>
-              <div class="w-3.5 h-3.5 bg-slate-600 border-2 border-slate-950 rounded-full absolute -bottom-0.5 -right-0.5"></div>
-            </div>
-            <div class="flex-1 min-w-0">
-              <div class="flex justify-between items-center mb-1">
-                <h3 class="font-semibold text-sm text-slate-100 truncate flex items-center gap-1.5">
-                  Arda
-                  <span class="text-[10px] px-1.5 py-0.5 bg-pink-950/80 text-pink-300 border border-pink-800/50 rounded-md font-normal">🎵 Müzik</span>
-                </h3>
-                <span class="text-[10px] text-slate-500">Dün</span>
-              </div>
-              <div class="flex justify-between items-center">
-                <p class="text-xs text-slate-400 truncate pr-2">🎙️ Sesli Mesaj (0:18)</p>
-                <span class="text-xs text-indigo-400">✓✓</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Chat Item 5: Zeynep -->
-          <div onclick="openActiveChat('Zeynep', '✨', 'Online • ✨ Sakin Mod', 'zeynep')" 
-               class="chat-item flex items-center gap-3 p-2.5 rounded-2xl hover:bg-slate-900/90 active:bg-slate-800/80 cursor-pointer transition"
-               data-name="zeynep" data-unread="false" data-type="direct">
-            <div class="relative shrink-0">
-              <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-950 to-slate-800 border border-slate-700/80 flex items-center justify-center text-2xl shadow">
-                ✨
-              </div>
-              <div class="w-3.5 h-3.5 bg-emerald-500 border-2 border-slate-950 rounded-full absolute -bottom-0.5 -right-0.5"></div>
-            </div>
-            <div class="flex-1 min-w-0">
-              <div class="flex justify-between items-center mb-1">
-                <h3 class="font-semibold text-sm text-slate-100 truncate flex items-center gap-1.5">
-                  Zeynep
-                  <span class="text-[10px] px-1.5 py-0.5 bg-purple-950/80 text-purple-300 border border-purple-800/50 rounded-md font-normal">✨ Sakin</span>
-                </h3>
-                <span class="text-[10px] text-slate-500">Dün</span>
-              </div>
-              <div class="flex justify-between items-center">
-                <p class="text-xs text-slate-400 truncate pr-2">Hafta sonu kahve içelim mi?</p>
-                <span class="text-xs text-indigo-400">✓✓</span>
-              </div>
-            </div>
-          </div>
-
-        </div>
-      </div>
-
-      <!-- ================= 2. ACTIVE CHAT DETAILED WINDOW SCREEN ================= -->
-      <div id="screenActiveChat" class="screen-view flex-col h-full w-full bg-slate-950 z-20">
-        
-        <!-- Chat Header -->
-        <div class="px-3 pt-3 pb-2.5 bg-slate-900/95 border-b border-slate-800 backdrop-blur-md flex items-center justify-between shadow-md">
-          <div class="flex items-center gap-2.5 min-w-0">
-            <button onclick="closeActiveChat()" class="p-1.5 hover:bg-slate-800 rounded-full text-slate-300 text-lg transition active:scale-90">
-              ←
-            </button>
-            <div class="relative shrink-0">
-              <div id="chatWindowAvatar" class="w-10 h-10 rounded-xl bg-indigo-900 flex items-center justify-center text-xl border border-slate-700">
-                🎮
-              </div>
-            </div>
-            <div class="min-w-0">
-              <h2 id="chatWindowName" class="font-semibold text-sm text-slate-100 truncate">Mete</h2>
-              <p id="chatWindowStatus" class="text-[10px] text-emerald-400 font-medium truncate">Online • ⚡ Oyun Modu</p>
-            </div>
-          </div>
-          
-          <div class="flex items-center gap-1 text-slate-300">
-            <button onclick="startSimulatedCall('Sesli')" class="p-2 hover:bg-slate-800 rounded-full text-base transition">📞</button>
-            <button onclick="startSimulatedCall('Görüntülü')" class="p-2 hover:bg-slate-800 rounded-full text-base transition">📹</button>
-            <button onclick="showToast('Sohbet ayarları açıldı')" class="p-2 hover:bg-slate-800 rounded-full text-base transition">⋮</button>
-          </div>
-        </div>
-
-        <!-- Chat Messages Container -->
-        <div id="chatMessagesBox" class="flex-1 overflow-y-auto p-4 space-y-3 bg-slate-950/60">
-          
-          <div class="text-center my-2">
-            <span class="text-[10px] bg-slate-900/90 text-slate-500 border border-slate-800 px-3 py-1 rounded-full">Bugün</span>
-          </div>
-
-          <!-- Incoming Message -->
-          <div class="flex items-end gap-2 max-w-[82%]">
-            <div class="w-7 h-7 rounded-lg bg-slate-800 flex items-center justify-center text-xs shrink-0 text-slate-300">🎮</div>
-            <div class="bg-slate-900 border border-slate-800 text-slate-100 p-3 rounded-2xl rounded-bl-none text-xs shadow-sm leading-relaxed">
-              <p>Selam knk! MessApp üzerinden yazıyorum, modları denedim harika olmuş! 🔥</p>
-              <div class="text-[9px] text-slate-500 text-right mt-1">17:38</div>
-            </div>
-          </div>
-
-          <!-- Outgoing Message -->
-          <div class="flex items-end justify-end gap-2 max-w-[82%] ml-auto">
-            <div class="message-outgoing text-white p-3 rounded-2xl rounded-br-none text-xs shadow-md leading-relaxed">
-              <p>Aleykümselam! Tasarımı sadeleştirdik, renkler mor-mavi tam oturdu. 🚀</p>
-              <div class="text-[9px] text-purple-200 text-right mt-1 flex items-center justify-end gap-1">
-                <span>17:40</span>
-                <span>✓✓</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Simulated Voice Message -->
-          <div class="flex items-end gap-2 max-w-[82%]">
-            <div class="w-7 h-7 rounded-lg bg-slate-800 flex items-center justify-center text-xs shrink-0 text-slate-300">🎮</div>
-            <div class="bg-slate-900 border border-slate-800 text-slate-100 p-2.5 rounded-2xl rounded-bl-none text-xs shadow-sm w-56">
-              <div class="flex items-center gap-2">
-                <button onclick="toggleAudioSim(this)" class="w-8 h-8 rounded-full brand-gradient text-white flex items-center justify-center text-xs shrink-0 shadow">▶</button>
-                <div class="flex-1">
-                  <div class="h-1.5 bg-slate-800 rounded-full overflow-hidden flex items-center">
-                    <div class="w-2/5 h-full bg-indigo-500"></div>
-                  </div>
-                  <div class="flex justify-between text-[9px] text-slate-500 mt-1">
-                    <span>0:07 / 0:18</span>
-                    <span>17:41</span>
-                  </div>
+        <!-- MAIN PAGE CONTENT -->
+        <div class="page-content">
+            <!-- 1. SOHBETLER SAYFASI -->
+            <div class="view-page active" id="chatsPage">
+                <div class="section-label">
+                    <span>Vibe Snap • Anlık Modlar</span>
+                    <span style="color: #c084fc; cursor: pointer;" onclick="openCreateModal()">+ Mod Paylaş</span>
                 </div>
-              </div>
+
+                <!-- STORIES -->
+                <div class="stories-scroll" id="storiesList">
+                    <div class="story-item" onclick="openCreateModal()">
+                        <div class="avatar-wrapper add-story-btn"><i class="fa-solid fa-plus"></i></div>
+                        <span class="story-name">Modun Ne?</span>
+                    </div>
+
+                    <div class="story-item" onclick="viewStory('Eren', '🎧 Müzik Modunda', 'LO-FI beatler eşliğinde ders çalışmaca...', 'Mavi Gri - Dünyanın En Güzel Kızı', 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150')">
+                        <div class="avatar-wrapper vibe-ring-music">
+                            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150" class="avatar-img">
+                            <div class="vibe-badge">🎧</div>
+                        </div>
+                        <span class="story-name">Eren</span>
+                    </div>
+
+                    <div class="story-item" onclick="viewStory('Selin', '☕ Kahve Molası', 'Modumu yakalamak için kahve şart ☕', '', 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150')">
+                        <div class="avatar-wrapper vibe-ring-chill">
+                            <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150" class="avatar-img">
+                            <div class="vibe-badge">☕</div>
+                        </div>
+                        <span class="story-name">Selin</span>
+                    </div>
+                </div>
+
+                <div class="section-label" style="margin-top: 20px;">Sohbetler</div>
+
+                <!-- CHAT LIST -->
+                <div class="chat-list" id="chatListContainer">
+                    <!-- PINNED MESSAI -->
+                    <div class="chat-card messai-card" onclick="openAiChat()">
+                        <div class="avatar-wrapper" style="width: 48px; height: 48px; background: linear-gradient(135deg, #a855f7, #00f2fe); border-radius: 12px;">
+                            <i class="fa-solid fa-robot" style="color: white; font-size: 20px;"></i>
+                        </div>
+                        <div class="chat-info">
+                            <div class="chat-header-flex">
+                                <div class="chat-name" style="background: linear-gradient(135deg, #c084fc, #38bdf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">MessAI Assistant</div>
+                                <span style="font-size: 9px; background: rgba(168, 85, 247, 0.3); color: #c084fc; padding: 2px 6px; border-radius: 6px;">AI</span>
+                            </div>
+                            <div class="chat-msg">Sana nasıl yardımcı olabilirim? ✨</div>
+                        </div>
+                    </div>
+
+                    <!-- USER CHATS -->
+                    <div class="chat-card" data-vibe="music" onclick="openChatDetail('Eren', 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150')">
+                        <div class="avatar-wrapper" style="width: 48px; height: 48px;">
+                            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150" class="avatar-img">
+                        </div>
+                        <div class="chat-info">
+                            <div class="chat-header-flex">
+                                <div class="chat-name">Eren</div>
+                                <div class="chat-time">21:45</div>
+                            </div>
+                            <div class="chat-msg">Dinlediğin şarkı listesini atsana!</div>
+                        </div>
+                    </div>
+
+                    <div class="chat-card" data-vibe="chill" onclick="openChatDetail('Selin', 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150')">
+                        <div class="avatar-wrapper" style="width: 48px; height: 48px;">
+                            <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150" class="avatar-img">
+                        </div>
+                        <div class="chat-info">
+                            <div class="chat-header-flex">
+                                <div class="chat-name">Selin</div>
+                                <div class="chat-time">19:20</div>
+                            </div>
+                            <div class="chat-msg">Yarınki deneme sınavı kaçtaydı?</div>
+                        </div>
+                    </div>
+                </div>
             </div>
-          </div>
 
-          <!-- Target Dynamic Append Container -->
-          <div id="dynamicChatMessages" class="space-y-3"></div>
+            <!-- OTHER PAGES -->
+            <div class="view-page" id="vibeSnapPage">
+                <div class="section-label">Canlı Vibe Akışı</div>
+                <button class="action-btn" style="width: 100%;" onclick="openCreateModal()">+ Kendi Modunu Paylaş</button>
+            </div>
 
+            <div class="view-page" id="callsPage">
+                <div class="section-label">Son Aramalar</div>
+                <div class="chat-card">
+                    <i class="fa-solid fa-phone-arrow-down-left" style="color: #10b981; font-size: 20px;"></i>
+                    <div class="chat-info">
+                        <div class="chat-name">Eren</div>
+                        <div class="chat-msg">Gelen Sesli Arama • Bugün, 20:12</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="view-page" id="contactsPage">
+                <div class="section-label">Kişilerim (2)</div>
+                <div class="chat-card" onclick="openChatDetail('Eren', 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150')"><div class="chat-name">Eren</div></div>
+                <div class="chat-card" style="margin-top: 8px;" onclick="openChatDetail('Selin', 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150')"><div class="chat-name">Selin</div></div>
+            </div>
+
+            <div class="view-page" id="settingsPage">
+                <div class="section-label">Uygulama Ayarları</div>
+                <div class="chat-card" style="flex-direction: column; align-items: flex-start; gap: 8px;">
+                    <strong>MessApp v2.0 - Next-Gen</strong>
+                    <span style="font-size: 12px; color: var(--text-muted);">PWA, MessAI ve Müzikli Vibe Entegrasyonu Aktif</span>
+                </div>
+            </div>
         </div>
 
-        <!-- Chat Input Bar -->
-        <div class="p-2.5 bg-slate-900/95 border-t border-slate-800/80 flex items-center gap-2">
-          <button onclick="showToast('Dosya / Görsel ekleme')" class="text-slate-400 hover:text-slate-200 p-2 text-lg">📎</button>
-          <div class="flex-1 bg-slate-950 border border-slate-800 rounded-2xl flex items-center px-3 py-1.5 focus-within:border-indigo-500 transition">
-            <input type="text" id="activeChatMessageInput" onkeydown="handleChatKeyDown(event)" placeholder="Mesajınızı yazın..." 
-                   class="w-full bg-transparent text-xs text-slate-100 placeholder-slate-500 focus:outline-none">
-            <button onclick="insertEmoji('😊')" class="text-slate-500 hover:text-slate-300 text-base ml-1">😊</button>
-          </div>
-          <button onclick="sendActiveChatMessage()" class="w-10 h-10 brand-gradient text-white rounded-2xl flex items-center justify-center text-lg font-bold shadow-md active:scale-90 transition shrink-0">
-            ➔
-          </button>
+        <!-- DETAYLI KİŞİ SOHBETİ -->
+        <div class="chat-detail-screen" id="chatDetailScreen">
+            <div class="chat-detail-header">
+                <i class="fa-solid fa-arrow-left" style="font-size: 18px; cursor: pointer;" onclick="closeChatDetail()"></i>
+                <img id="detailAvatar" src="" style="width: 38px; height: 38px; border-radius: 50%; object-fit: cover;">
+                <div style="flex:1;">
+                    <div id="detailName" style="font-size: 15px; font-weight: 700;">İsim</div>
+                    <div style="font-size: 11px; color: #10b981;">çevrimiçi</div>
+                </div>
+            </div>
+            <div class="chat-detail-messages" id="detailMessages">
+                <div class="msg-bubble msg-incoming">Selam! MessApp v2.0 harika gözüküyor! 🚀</div>
+            </div>
+            <div class="chat-input-area">
+                <input type="text" class="chat-input" id="messageInput" placeholder="Mesaj yaz..." onkeypress="if(event.key==='Enter') sendMessage()">
+                <i class="fa-solid fa-paper-plane" style="color: var(--accent-neon-blue); font-size: 18px; cursor: pointer;" onclick="sendMessage()"></i>
+            </div>
         </div>
 
-      </div>
-
-      <!-- ================= 3. ARAMALAR (CALLS) SCREEN ================= -->
-      <div id="screenCalls" class="screen-view flex-col h-full w-full">
-        <!-- Header -->
-        <div class="px-5 pt-3 pb-3 brand-gradient text-white shadow-lg flex items-center justify-between">
-          <div>
-            <h1 class="font-bold text-lg leading-tight">Aramalar</h1>
-            <p class="text-[10px] text-purple-100">Sesli ve Görüntülü Geçmiş</p>
-          </div>
-          <button onclick="startSimulatedCall('Yeni Arama')" class="w-9 h-9 rounded-full bg-white/15 hover:bg-white/25 flex items-center justify-center text-sm font-semibold">
-            📞+
-          </button>
+        <!-- MESSAI SOHBET EKRANI -->
+        <div class="chat-detail-screen" id="aiChatScreen">
+            <div class="chat-detail-header">
+                <i class="fa-solid fa-arrow-left" style="font-size: 18px; cursor: pointer;" onclick="closeAiChat()"></i>
+                <div style="width: 36px; height: 36px; border-radius: 10px; background: linear-gradient(135deg, #a855f7, #00f2fe); display:flex; align-items:center; justify-content:center;">
+                    <i class="fa-solid fa-robot" style="color:white; font-size: 18px;"></i>
+                </div>
+                <div>
+                    <div style="font-size: 15px; font-weight: 700;">MessAI Assistant</div>
+                    <div style="font-size: 11px; color: var(--accent-neon-blue);">Dinamik Zeka Aktif</div>
+                </div>
+            </div>
+            <div class="chat-detail-messages" id="aiMessages">
+                <div class="msg-bubble msg-incoming">Selam! Ben MessAI. Sana dersler, motivasyon veya müzik fikirleri konusunda nasıl yardımcı olabilirim? ✨</div>
+            </div>
+            <div class="chat-input-area">
+                <input type="text" class="chat-input" id="aiMessageInput" placeholder="MessAI'a soru sor..." onkeypress="if(event.key==='Enter') sendAiMessage()">
+                <i class="fa-solid fa-paper-plane" style="color: var(--accent-neon-purple); font-size: 18px; cursor: pointer;" onclick="sendAiMessage()"></i>
+            </div>
         </div>
 
-        <div class="flex-1 overflow-y-auto p-3 space-y-2 divide-y divide-slate-900">
-          
-          <div class="flex items-center justify-between p-2.5 hover:bg-slate-900/60 rounded-xl transition">
-            <div class="flex items-center gap-3">
-              <div class="w-11 h-11 rounded-2xl bg-indigo-950 border border-indigo-800 flex items-center justify-center text-xl">🎮</div>
-              <div>
-                <h4 class="text-xs font-semibold text-slate-100">Mete</h4>
-                <p class="text-[10px] text-emerald-400 flex items-center gap-1 mt-0.5">
-                  <span>↙ Gelen Görüntülü</span> • <span>12 dk</span>
-                </p>
-              </div>
+        <!-- MODAL: MOD PAYLAŞMA -->
+        <div class="modal" id="createModal">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h3>Anlık Modunu Paylaş</h3>
+                <i class="fa-solid fa-xmark" style="cursor: pointer;" onclick="closeCreateModal()"></i>
             </div>
-            <div class="text-right">
-              <span class="text-[10px] text-slate-500">Bugün 15:20</span>
-              <button onclick="startSimulatedCall('Mete ile')" class="block text-indigo-400 hover:text-indigo-300 text-xs font-medium mt-1 ml-auto">Tekrar Ara</button>
-            </div>
-          </div>
 
-          <div class="flex items-center justify-between p-2.5 hover:bg-slate-900/60 rounded-xl transition">
-            <div class="flex items-center gap-3">
-              <div class="w-11 h-11 rounded-2xl bg-cyan-950 border border-cyan-800 flex items-center justify-center text-xl">📚</div>
-              <div>
-                <h4 class="text-xs font-semibold text-slate-100">Selin</h4>
-                <p class="text-[10px] text-rose-400 flex items-center gap-1 mt-0.5">
-                  <span>↗ Cevapsız Sesli Arama</span>
-                </p>
-              </div>
+            <div class="vibe-selector">
+                <div class="vibe-option selected" onclick="selectVibeOption(this, '🎧 Müzik', 'vibe-ring-music')"><span>🎧</span> <strong>Müzik</strong></div>
+                <div class="vibe-option" onclick="selectVibeOption(this, '☕ Chill', 'vibe-ring-chill')"><span>☕</span> <strong>Chill</strong></div>
+                <div class="vibe-option" onclick="selectVibeOption(this, '🚀 Odak', 'vibe-ring-focus')"><span>🚀</span> <strong>Odak</strong></div>
             </div>
-            <div class="text-right">
-              <span class="text-[10px] text-slate-500">Dün 21:05</span>
-              <button onclick="startSimulatedCall('Selin ile')" class="block text-indigo-400 hover:text-indigo-300 text-xs font-medium mt-1 ml-auto">Geri Ara</button>
-            </div>
-          </div>
 
-          <div class="flex items-center justify-between p-2.5 hover:bg-slate-900/60 rounded-xl transition">
-            <div class="flex items-center gap-3">
-              <div class="w-11 h-11 rounded-2xl bg-purple-950 border border-purple-800 flex items-center justify-center text-xl">✨</div>
-              <div>
-                <h4 class="text-xs font-semibold text-slate-100">Zeynep</h4>
-                <p class="text-[10px] text-slate-400 flex items-center gap-1 mt-0.5">
-                  <span>↗ Giden Sesli</span> • <span>4 dk</span>
-                </p>
-              </div>
+            <div class="music-input-card" id="musicInputCard" style="display: flex;">
+                <i class="fa-solid fa-compact-disc" style="color: var(--accent-pink); font-size: 20px;"></i>
+                <input type="text" id="songInput" placeholder="Hangi şarkıyı dinliyorsun? (Örn: Mavi Gri)" style="background:transparent; border:none; outline:none; color:white; font-size:12px; flex:1;">
             </div>
-            <div class="text-right">
-              <span class="text-[10px] text-slate-500">25 Eylül</span>
-              <button onclick="startSimulatedCall('Zeynep ile')" class="block text-indigo-400 hover:text-indigo-300 text-xs font-medium mt-1 ml-auto">Ara</button>
-            </div>
-          </div>
 
-        </div>
-      </div>
-
-      <!-- ================= 4. KİŞİLER (CONTACTS) SCREEN ================= -->
-      <div id="screenContacts" class="screen-view flex-col h-full w-full">
-        <!-- Header -->
-        <div class="px-5 pt-3 pb-3 brand-gradient text-white shadow-lg flex items-center justify-between">
-          <div>
-            <h1 class="font-bold text-lg leading-tight">Rehber / Kişiler</h1>
-            <p class="text-[10px] text-purple-100">MessApp Kullanıcıları</p>
-          </div>
-          <button onclick="showToast('Yeni kişi ekle menüsü')" class="w-9 h-9 rounded-full bg-white/15 hover:bg-white/25 flex items-center justify-center text-lg font-bold">
-            +
-          </button>
+            <textarea style="width: 100%; background: var(--card-bg); border: 1px solid #334155; padding: 12px; border-radius: 12px; color: white; resize:none;" id="storyText" rows="3" placeholder="Şu an ne yapıyorsun?"></textarea>
+            <button class="action-btn" style="margin-top: 15px;" onclick="publishStory()">Vibe Snap Yayınla ✨</button>
         </div>
 
-        <div class="p-3 bg-slate-950 border-b border-slate-900">
-          <input type="text" placeholder="Kişi ara..." class="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs text-slate-100 placeholder-slate-500 focus:outline-none">
+        <!-- HİKAYE İZLEME EKRANI -->
+        <div class="modal" id="storyViewer" style="background: #000; justify-content: space-between;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <strong id="viewerName">Kullanıcı</strong>
+                <i class="fa-solid fa-xmark" style="cursor: pointer;" onclick="closeViewer()"></i>
+            </div>
+            <div style="text-align: center;">
+                <h2 id="viewerVibe" style="color: var(--accent-neon-blue); margin-bottom: 5px;">Mod</h2>
+                <div id="viewerMusicBox" style="display:none; background: rgba(236,72,153,0.2); border: 1px solid var(--accent-pink); padding: 8px 14px; border-radius: 20px; display:inline-flex; align-items:center; gap:8px; margin-bottom:15px;">
+                    <i class="fa-solid fa-music" style="color: var(--accent-pink);"></i>
+                    <span id="viewerSong" style="font-size: 12px; font-weight:600;">Şarkı</span>
+                    <div class="eq-box"><div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div></div>
+                </div>
+                <p id="viewerText" style="font-size: 16px; color: #e2e8f0;">Mesaj...</p>
+            </div>
+            <div></div>
         </div>
 
-        <div class="flex-1 overflow-y-auto p-3 space-y-3">
-          
-          <div class="text-[11px] font-bold text-purple-400 px-2">A</div>
-          <div class="bg-slate-900/60 rounded-2xl p-2.5 flex items-center justify-between border border-slate-800/80">
-            <div class="flex items-center gap-3">
-              <div class="w-10 h-10 rounded-xl bg-pink-950 flex items-center justify-center text-lg">🎧</div>
-              <div>
-                <h4 class="text-xs font-semibold text-slate-100">Arda Yılmaz</h4>
-                <p class="text-[10px] text-slate-400">🎵 Müzik Modunda</p>
-              </div>
-            </div>
-            <button onclick="openActiveChat('Arda', '🎧', 'Online', 'arda')" class="px-3 py-1.5 brand-gradient text-white rounded-xl text-xs font-medium shadow">Mesaj</button>
-          </div>
-
-          <div class="text-[11px] font-bold text-purple-400 px-2">M</div>
-          <div class="bg-slate-900/60 rounded-2xl p-2.5 flex items-center justify-between border border-slate-800/80">
-            <div class="flex items-center gap-3">
-              <div class="w-10 h-10 rounded-xl bg-indigo-950 flex items-center justify-center text-lg">🎮</div>
-              <div>
-                <h4 class="text-xs font-semibold text-slate-100">Mete Kaya</h4>
-                <p class="text-[10px] text-slate-400">⚡ Oyun Modunda</p>
-              </div>
-            </div>
-            <button onclick="openActiveChat('Mete', '🎮', 'Online', 'mete')" class="px-3 py-1.5 brand-gradient text-white rounded-xl text-xs font-medium shadow">Mesaj</button>
-          </div>
-
-          <div class="text-[11px] font-bold text-purple-400 px-2">S</div>
-          <div class="bg-slate-900/60 rounded-2xl p-2.5 flex items-center justify-between border border-slate-800/80">
-            <div class="flex items-center gap-3">
-              <div class="w-10 h-10 rounded-xl bg-cyan-950 flex items-center justify-center text-lg">📚</div>
-              <div>
-                <h4 class="text-xs font-semibold text-slate-100">Selin Demir</h4>
-                <p class="text-[10px] text-slate-400">🎯 Ders Odak Modunda</p>
-              </div>
-            </div>
-            <button onclick="openActiveChat('Selin', '📚', 'Online', 'selin')" class="px-3 py-1.5 brand-gradient text-white rounded-xl text-xs font-medium shadow">Mesaj</button>
-          </div>
-
-          <div class="text-[11px] font-bold text-purple-400 px-2">Z</div>
-          <div class="bg-slate-900/60 rounded-2xl p-2.5 flex items-center justify-between border border-slate-800/80">
-            <div class="flex items-center gap-3">
-              <div class="w-10 h-10 rounded-xl bg-purple-950 flex items-center justify-center text-lg">✨</div>
-              <div>
-                <h4 class="text-xs font-semibold text-slate-100">Zeynep Şahin</h4>
-                <p class="text-[10px] text-slate-400">✨ Sakin Modunda</p>
-              </div>
-            </div>
-            <button onclick="openActiveChat('Zeynep', '✨', 'Online', 'zeynep')" class="px-3 py-1.5 brand-gradient text-white rounded-xl text-xs font-medium shadow">Mesaj</button>
-          </div>
-
-        </div>
-      </div>
-
-      <!-- ================= 5. AYARLAR (SETTINGS) SCREEN ================= -->
-      <div id="screenSettings" class="screen-view flex-col h-full w-full">
-        <!-- Header -->
-        <div class="px-5 pt-3 pb-3 brand-gradient text-white shadow-lg">
-          <h1 class="font-bold text-lg leading-tight">Ayarlar & Profil</h1>
-          <p class="text-[10px] text-purple-100">MessApp Hesabın ve Özelleştirmeler</p>
-        </div>
-
-        <div class="flex-1 overflow-y-auto p-4 space-y-4">
-          
-          <!-- User Profile Card -->
-          <div class="glass-card rounded-2xl p-4 flex items-center gap-3 border border-slate-800">
-            <div class="relative">
-              <div class="w-14 h-14 rounded-2xl brand-gradient p-0.5 flex items-center justify-center text-2xl shadow-lg">
-                😎
-              </div>
-              <div class="w-4 h-4 bg-emerald-500 border-2 border-slate-900 rounded-full absolute -bottom-1 -right-1"></div>
-            </div>
-            <div class="flex-1">
-              <h3 class="font-bold text-sm text-slate-100">Kullanıcı (Sen)</h3>
-              <p class="text-[11px] text-purple-300 font-medium">@messapp_user</p>
-              <div id="activeUserVibeBadge" class="mt-1 inline-block text-[9px] px-2 py-0.5 bg-indigo-950 text-indigo-300 border border-indigo-800 rounded-md">
-                ✨ Aktif Mod: Sakin
-              </div>
-            </div>
-          </div>
-
-          <!-- Vibe Selector Box -->
-          <div class="bg-slate-900/90 rounded-2xl p-3 border border-slate-800/80">
-            <h4 class="text-xs font-semibold text-slate-300 mb-2">Anlık Ruh Halini (Vibe) Değiştir</h4>
-            <div class="grid grid-cols-2 gap-2">
-              <button onclick="updateActiveUserVibe('✨ Sakin')" class="p-2 bg-slate-950 hover:border-purple-500 border border-slate-800 rounded-xl text-left text-xs flex items-center gap-2 transition">
-                <span>✨</span> <span class="text-slate-200">Sakin</span>
-              </button>
-              <button onclick="updateActiveUserVibe('⚡ Enerjik')" class="p-2 bg-slate-950 hover:border-purple-500 border border-slate-800 rounded-xl text-left text-xs flex items-center gap-2 transition">
-                <span>⚡</span> <span class="text-slate-200">Enerjik</span>
-              </button>
-              <button onclick="updateActiveUserVibe('🎯 Odak')" class="p-2 bg-slate-950 hover:border-purple-500 border border-slate-800 rounded-xl text-left text-xs flex items-center gap-2 transition">
-                <span>🎯</span> <span class="text-slate-200">Ders / Odak</span>
-              </button>
-              <button onclick="updateActiveUserVibe('🎵 Müzik')" class="p-2 bg-slate-950 hover:border-purple-500 border border-slate-800 rounded-xl text-left text-xs flex items-center gap-2 transition">
-                <span>🎵</span> <span class="text-slate-200">Müzik Dinliyor</span>
-              </button>
-            </div>
-          </div>
-
-          <!-- Settings Items -->
-          <div class="bg-slate-900/90 rounded-2xl border border-slate-800/80 divide-y divide-slate-800/60 text-xs">
-            <div onclick="showToast('Bildirim sesleri açık')" class="p-3 flex items-center justify-between cursor-pointer hover:bg-slate-800/50 transition">
-              <div class="flex items-center gap-2.5 text-slate-200">
-                <span>🔔</span> <span>Bildirimler & Sesler</span>
-              </div>
-              <span class="text-slate-500">›</span>
-            </div>
-            <div onclick="showToast('Mor-Mavi Gradient Tema seçili')" class="p-3 flex items-center justify-between cursor-pointer hover:bg-slate-800/50 transition">
-              <div class="flex items-center gap-2.5 text-slate-200">
-                <span>🎨</span> <span>Tema & Renk Paleti</span>
-              </div>
-              <span class="text-purple-400 font-medium">Mor-Mavi ›</span>
-            </div>
-            <div onclick="showToast('Gizlilik ayarları aktif')" class="p-3 flex items-center justify-between cursor-pointer hover:bg-slate-800/50 transition">
-              <div class="flex items-center gap-2.5 text-slate-200">
-                <span>🔒</span> <span>Gizlilik & Güvenlik</span>
-              </div>
-              <span class="text-slate-500">›</span>
-            </div>
-            <div onclick="showToast('MessApp v2.4 (Özgün Sürüm)')" class="p-3 flex items-center justify-between cursor-pointer hover:bg-slate-800/50 transition">
-              <div class="flex items-center gap-2.5 text-slate-200">
-                <span>ℹ️</span> <span>MessApp Hakkında</span>
-              </div>
-              <span class="text-slate-500">v2.4 ›</span>
-            </div>
-          </div>
-
-        </div>
-      </div>
-
+        <!-- BOTTOM NAVBAR -->
+        <nav>
+            <div class="nav-item active" onclick="switchPage('chatsPage', this)"><i class="fa-solid fa-comments"></i><span>Sohbetler</span></div>
+            <div class="nav-item" onclick="switchPage('vibeSnapPage', this)"><i class="fa-solid fa-bolt"></i><span>Vibe Snap</span></div>
+            <div class="nav-item" onclick="switchPage('callsPage', this)"><i class="fa-solid fa-phone"></i><span>Aramalar</span></div>
+            <div class="nav-item" onclick="switchPage('contactsPage', this)"><i class="fa-solid fa-user-group"></i><span>Kişiler</span></div>
+            <div class="nav-item" onclick="switchPage('settingsPage', this)"><i class="fa-solid fa-gear"></i><span>Ayarlar</span></div>
+        </nav>
     </div>
 
-    <!-- ================= BOTTOM NAVIGATION BAR ================= -->
-    <div id="bottomNav" class="w-full bg-slate-900/95 border-t border-slate-800/80 px-4 py-2 flex justify-around items-center z-30">
-      <button onclick="switchTab('screenChats')" id="navChats" class="nav-btn flex flex-col items-center gap-0.5 text-purple-400 font-semibold transition active:scale-90">
-        <span class="text-xl">💬</span>
-        <span class="text-[10px]">Sohbetler</span>
-      </button>
+    <script>
+        let selectedVibeTitle = '🎧 Müzik';
+        let selectedVibeClass = 'vibe-ring-music';
 
-      <button onclick="switchTab('screenCalls')" id="navCalls" class="nav-btn flex flex-col items-center gap-0.5 text-slate-500 hover:text-slate-300 transition active:scale-90">
-        <span class="text-xl">📞</span>
-        <span class="text-[10px]">Aramalar</span>
-      </button>
-
-      <button onclick="switchTab('screenContacts')" id="navContacts" class="nav-btn flex flex-col items-center gap-0.5 text-slate-500 hover:text-slate-300 transition active:scale-90">
-        <span class="text-xl">👥</span>
-        <span class="text-[10px]">Kişiler</span>
-      </button>
-
-      <button onclick="switchTab('screenSettings')" id="navSettings" class="nav-btn flex flex-col items-center gap-0.5 text-slate-500 hover:text-slate-300 transition active:scale-90">
-        <span class="text-xl">⚙️</span>
-        <span class="text-[10px]">Ayarlar</span>
-      </button>
-    </div>
-
-    <!-- Toast Notification Banner Overlay -->
-    <div id="toastNotification" class="hidden absolute top-12 left-1/2 -translate-x-1/2 bg-indigo-600/90 backdrop-blur-md text-white text-xs px-4 py-2 rounded-full shadow-2xl z-50 border border-indigo-400/30 transition-all">
-      <span id="toastMsg">Bildirim</span>
-    </div>
-
-  </div>
-
-  <script>
-    // State Variables
-    let currentActiveChatPerson = 'Mete';
-    let activeVibe = 'Sakin';
-
-    // Live Phone Clock Update
-    function updateClock() {
-      const now = new Date();
-      const hours = String(now.getHours()).padStart(2, '0');
-      const minutes = String(now.getMinutes()).padStart(2, '0');
-      document.getElementById('liveClock').innerText = `${hours}:${minutes}`;
-    }
-    setInterval(updateClock, 1000);
-    updateClock();
-
-    // Tab Switcher Logic
-    function switchTab(screenId) {
-      // Hide all screen views
-      const screens = document.querySelectorAll('.screen-view');
-      screens.forEach(s => s.classList.remove('active'));
-
-      // Show selected screen
-      const target = document.getElementById(screenId);
-      if (target) {
-        target.classList.add('active');
-      }
-
-      // Update Bottom Navigation Highlight
-      const navButtons = document.querySelectorAll('.nav-btn');
-      navButtons.forEach(btn => {
-        btn.classList.remove('text-purple-400', 'font-semibold');
-        btn.classList.add('text-slate-500');
-      });
-
-      if (screenId === 'screenChats') {
-        document.getElementById('navChats').classList.add('text-purple-400', 'font-semibold');
-        document.getElementById('navChats').classList.remove('text-slate-500');
-      } else if (screenId === 'screenCalls') {
-        document.getElementById('navCalls').classList.add('text-purple-400', 'font-semibold');
-        document.getElementById('navCalls').classList.remove('text-slate-500');
-      } else if (screenId === 'screenContacts') {
-        document.getElementById('navContacts').classList.add('text-purple-400', 'font-semibold');
-        document.getElementById('navContacts').classList.remove('text-slate-500');
-      } else if (screenId === 'screenSettings') {
-        document.getElementById('navSettings').classList.add('text-purple-400', 'font-semibold');
-        document.getElementById('navSettings').classList.remove('text-slate-500');
-      }
-    }
-
-    // Active Detailed Chat Window Opener
-    function openActiveChat(name, avatar, status, id) {
-      currentActiveChatPerson = name;
-      document.getElementById('chatWindowName').innerText = name;
-      document.getElementById('chatWindowAvatar').innerText = avatar;
-      document.getElementById('chatWindowStatus').innerText = status;
-
-      // Reset dynamic chat message history when switching
-      document.getElementById('dynamicChatMessages').innerHTML = '';
-
-      switchTab('screenActiveChat');
-    }
-
-    function closeActiveChat() {
-      switchTab('screenChats');
-    }
-
-    // Send Message Logic with AI Response Simulation
-    function sendActiveChatMessage() {
-      const input = document.getElementById('activeChatMessageInput');
-      const text = input.value.trim();
-      if (!text) return;
-
-      const dynamicContainer = document.getElementById('dynamicChatMessages');
-      const now = new Date();
-      const timeStr = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
-
-      // Append Outgoing Message
-      const msgHTML = `
-        <div class="flex items-end justify-end gap-2 max-w-[82%] ml-auto animate-fade-in">
-          <div class="message-outgoing text-white p-3 rounded-2xl rounded-br-none text-xs shadow-md leading-relaxed">
-            <p>${escapeHTML(text)}</p>
-            <div class="text-[9px] text-purple-200 text-right mt-1 flex items-center justify-end gap-1">
-              <span>${timeStr}</span>
-              <span>✓✓</span>
-            </div>
-          </div>
-        </div>
-      `;
-      dynamicContainer.insertAdjacentHTML('beforeend', msgHTML);
-      input.value = '';
-
-      // Scroll to bottom
-      const box = document.getElementById('chatMessagesBox');
-      box.scrollTop = box.scrollHeight;
-
-      // Simulate Automated Dynamic Reply after 1.2s
-      setTimeout(() => {
-        simulateIncomingReply(currentActiveChatPerson);
-      }, 1200);
-    }
-
-    function handleChatKeyDown(event) {
-      if (event.key === 'Enter') {
-        sendActiveChatMessage();
-      }
-    }
-
-    function simulateIncomingReply(person) {
-      const dynamicContainer = document.getElementById('dynamicChatMessages');
-      const now = new Date();
-      const timeStr = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
-
-      const replies = [
-        "Harika fikir! MessApp gerçekten ışık hızında çalışıyor. 🚀",
-        "Aynen öyle knk, akşama detayları konuşuruz!",
-        "Tamamdır, ben notlarımı aldım. Başka bir şey var mı?",
-        "Süper görünüyor! Özgün mesajlaşma tam da buydu."
-      ];
-      const randomReply = replies[Math.floor(Math.random() * replies.length)];
-
-      const replyHTML = `
-        <div class="flex items-end gap-2 max-w-[82%] animate-fade-in">
-          <div class="w-7 h-7 rounded-lg bg-slate-800 flex items-center justify-center text-xs shrink-0 text-slate-300">💬</div>
-          <div class="bg-slate-900 border border-slate-800 text-slate-100 p-3 rounded-2xl rounded-bl-none text-xs shadow-sm leading-relaxed">
-            <p>${randomReply}</p>
-            <div class="text-[9px] text-slate-500 text-right mt-1">${timeStr}</div>
-          </div>
-        </div>
-      `;
-      dynamicContainer.insertAdjacentHTML('beforeend', replyHTML);
-
-      const box = document.getElementById('chatMessagesBox');
-      box.scrollTop = box.scrollHeight;
-    }
-
-    // Search and Filter Functions
-    function filterChatList() {
-      const query = document.getElementById('chatSearchInput').value.toLowerCase().trim();
-      const chatItems = document.querySelectorAll('.chat-item');
-      const clearBtn = document.getElementById('clearSearchBtn');
-
-      if (query.length > 0) {
-        clearBtn.classList.remove('hidden');
-      } else {
-        clearBtn.classList.add('hidden');
-      }
-
-      chatItems.forEach(item => {
-        const name = item.getAttribute('data-name') || '';
-        if (name.includes(query)) {
-          item.style.display = 'flex';
-        } else {
-          item.style.display = 'none';
+        function switchPage(pageId, navEl) {
+            document.querySelectorAll('.view-page').forEach(p => p.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+            if(navEl && navEl.classList.contains('nav-item')) {
+                document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+                navEl.classList.add('active');
+            }
         }
-      });
-    }
 
-    function clearSearch() {
-      document.getElementById('chatSearchInput').value = '';
-      filterChatList();
-    }
+        function toggleSearch() { document.getElementById('searchBox').classList.toggle('active'); }
 
-    function setFilterChip(btn, type) {
-      document.querySelectorAll('.chip-btn').forEach(b => {
-        b.className = 'chip-btn px-3 py-1 bg-slate-900 text-slate-400 hover:bg-slate-800 rounded-lg transition border border-slate-800';
-      });
-      btn.className = 'chip-btn px-3 py-1 bg-indigo-600 text-white rounded-lg font-medium shadow-sm transition';
-
-      const chatItems = document.querySelectorAll('.chat-item');
-      chatItems.forEach(item => {
-        if (type === 'all') {
-          item.style.display = 'flex';
-        } else if (type === 'unread') {
-          item.style.display = item.getAttribute('data-unread') === 'true' ? 'flex' : 'none';
-        } else if (type === 'groups') {
-          item.style.display = item.getAttribute('data-type') === 'groups' ? 'flex' : 'none';
-        } else if (type === 'favs') {
-          item.style.display = (item.getAttribute('data-name') === 'mete' || item.getAttribute('data-name') === 'selin') ? 'flex' : 'none';
+        function filterChats() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            document.querySelectorAll('.chat-card').forEach(card => {
+                const name = card.querySelector('.chat-name').innerText.toLowerCase();
+                card.style.display = name.includes(query) ? 'flex' : 'none';
+            });
         }
-      });
-    }
 
-    // Vibe Mod Switcher
-    function updateActiveUserVibe(vibeText) {
-      activeVibe = vibeText;
-      document.getElementById('activeUserVibeBadge').innerText = `✨ Aktif Mod: ${vibeText}`;
-      showToast(`Ruh Hali Değiştirildi: ${vibeText}`);
-    }
+        function filterVibe(vibe, el) {
+            document.querySelectorAll('.vibe-chip').forEach(c => c.classList.remove('active'));
+            el.classList.add('active');
+            document.querySelectorAll('#chatListContainer .chat-card').forEach(card => {
+                if(card.classList.contains('messai-card')) return;
+                if(vibe === 'all' || card.getAttribute('data-vibe') === vibe) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
 
-    function openVibeSelectorModal() {
-      switchTab('screenSettings');
-      showToast('Profilinden Vibe modunu değiştirebilirsin!');
-    }
+        /* CHAT & MESSAI */
+        function openChatDetail(name, avatar) {
+            document.getElementById('detailName').innerText = name;
+            document.getElementById('detailAvatar').src = avatar;
+            document.getElementById('chatDetailScreen').classList.add('active');
+        }
+        function closeChatDetail() { document.getElementById('chatDetailScreen').classList.remove('active'); }
 
-    function openNewChatModal() {
-      switchTab('screenContacts');
-      showToast('Mesaj başlatmak için listeden bir kişi seçin');
-    }
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            if(!input.value.trim()) return;
+            document.getElementById('detailMessages').insertAdjacentHTML('beforeend', `<div class="msg-bubble msg-outgoing">${input.value}</div>`);
+            input.value = '';
+            const box = document.getElementById('detailMessages');
+            box.scrollTop = box.scrollHeight;
+        }
 
-    // Audio Play Simulation Toggle
-    function toggleAudioSim(btn) {
-      if (btn.innerText === '▶') {
-        btn.innerText = '⏸';
-        showToast('Sesli mesaj oynatılıyor...');
-      } else {
-        btn.innerText = '▶';
-        showToast('Ses durduruldu.');
-      }
-    }
+        function openAiChat() { document.getElementById('aiChatScreen').classList.add('active'); }
+        function closeAiChat() { document.getElementById('aiChatScreen').classList.remove('active'); }
 
-    // Call Simulation
-    function startSimulatedCall(type) {
-      showToast(`${type} Arama Başlatılıyor...`);
-    }
+        function sendAiMessage() {
+            const input = document.getElementById('aiMessageInput');
+            const text = input.value.trim();
+            if(!text) return;
+            const msgs = document.getElementById('aiMessages');
+            msgs.insertAdjacentHTML('beforeend', `<div class="msg-bubble msg-outgoing">${text}</div>`);
+            input.value = '';
+            msgs.scrollTop = msgs.scrollHeight;
 
-    function insertEmoji(emoji) {
-      const input = document.getElementById('activeChatMessageInput');
-      input.value += emoji;
-      input.focus();
-    }
+            setTimeout(() => {
+                let responses = [
+                    "Harika bir konu! Bu konuda sana katılıyorum ✨",
+                    "🚀 Unutma, düzenli ve kararlı çalışmak her zaman başarıyı getirir!",
+                    "🎧 Modunu yüksek tut ve hedeflerine odaklanmaya devam et!",
+                    "MessAI olarak her zaman yanındayım. Başka soru sormak ister misin?"
+                ];
+                if(text.toLowerCase().includes('lgs') || text.toLowerCase().includes('ders')) {
+                    responses = ["🚀 LGS hazırlığında tur tekniği hayat kurtarır. Yapamadığın sorulara takılmadan devam et!"];
+                } else if(text.toLowerCase().includes('müzik') || text.toLowerCase().includes('şarkı')) {
+                    responses = ["🎵 Odaklanmak için Lo-Fi veya enstrümantal müzikler dinlemeni tavsiye ederim!"];
+                }
+                const randomReply = responses[Math.floor(Math.random() * responses.length)];
+                msgs.insertAdjacentHTML('beforeend', `<div class="msg-bubble msg-incoming">${randomReply}</div>`);
+                msgs.scrollTop = msgs.scrollHeight;
+            }, 600);
+        }
 
-    // Generic Toast Notification System
-    function showToast(msg) {
-      const toast = document.getElementById('toastNotification');
-      const toastMsg = document.getElementById('toastMsg');
-      toastMsg.innerText = msg;
-      toast.classList.remove('hidden');
+        /* VIBE SNAP MODAL */
+        function openCreateModal() { document.getElementById('createModal').classList.add('active'); }
+        function closeCreateModal() { document.getElementById('createModal').classList.remove('active'); }
 
-      setTimeout(() => {
-        toast.classList.add('hidden');
-      }, 2400);
-    }
+        function selectVibeOption(el, title, vibeClass) {
+            document.querySelectorAll('.vibe-option').forEach(opt => opt.classList.remove('selected'));
+            el.classList.add('selected');
+            selectedVibeTitle = title;
+            selectedVibeClass = vibeClass;
 
-    // Helper HTML Escaper
-    function escapeHTML(str) {
-      return str.replace(/[&<>'"]/g, 
-        tag => ({
-          '&': '&amp;',
-          '<': '&lt;',
-          '>': '&gt;',
-          "'": '&#39;',
-          '"': '&quot;'
-        }[tag] || tag)
-      );
-    }
-  </script>
+            const musicCard = document.getElementById('musicInputCard');
+            musicCard.style.display = (title.includes('Müzik')) ? 'flex' : 'none';
+        }
+
+        function publishStory() {
+            const text = document.getElementById('storyText').value;
+            const song = document.getElementById('songInput').value;
+            if(!text) return alert("Lütfen bir mod mesajı yaz!");
+
+            const newStory = `
+                <div class="story-item" onclick="viewStory('Sen', '${selectedVibeTitle}', '${text}', '${song}', 'https://api.dicebear.com/7.x/bottts/svg?seed=You')">
+                    <div class="avatar-wrapper ${selectedVibeClass}">
+                        <img src="https://api.dicebear.com/7.x/bottts/svg?seed=You" class="avatar-img">
+                        <div class="vibe-badge">${selectedVibeTitle.split(' ')[0]}</div>
+                    </div>
+                    <span class="story-name">Sen</span>
+                </div>
+            `;
+            document.getElementById('storiesList').insertAdjacentHTML('beforeend', newStory);
+            closeCreateModal();
+            document.getElementById('storyText').value = '';
+            document.getElementById('songInput').value = '';
+        }
+
+        function viewStory(name, vibe, text, song, avatar) {
+            document.getElementById('viewerName').innerText = name;
+            document.getElementById('viewerVibe').innerText = vibe;
+            document.getElementById('viewerText').innerText = `"${text}"`;
+            
+            const musicBox = document.getElementById('viewerMusicBox');
+            if(song) {
+                document.getElementById('viewerSong').innerText = song;
+                musicBox.style.display = 'inline-flex';
+            } else {
+                musicBox.style.display = 'none';
+            }
+
+            document.getElementById('storyViewer').classList.add('active');
+        }
+
+        function closeViewer() { document.getElementById('storyViewer').classList.remove('active'); }
+    </script>
 </body>
 </html>
